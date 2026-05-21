@@ -1,0 +1,33 @@
+{
+  "name": "smart-document-reader",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "npm run build && wrangler pages dev .svelte-kit/cloudflare --compatibility-date=2024-09-23",
+    "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare",
+    "db:migrate:local": "wrangler d1 execute smart-doc-db --local --file=./schema.sql",
+    "db:migrate:remote": "wrangler d1 execute smart-doc-db --remote --file=./schema.sql",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "samples:generate": "node scripts/generate-samples.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "pdf-lib": "^1.17.1",
+    "sharp": "^0.34.2",
+    "@cloudflare/workers-types": "^4.20250320.0",
+    "@sveltejs/adapter-cloudflare": "^5.0.2",
+    "@sveltejs/kit": "^2.20.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "svelte": "^5.20.0",
+    "svelte-check": "^4.1.5",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0",
+    "wrangler": "^4.93.0"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^4.10.38"
+  }
+}

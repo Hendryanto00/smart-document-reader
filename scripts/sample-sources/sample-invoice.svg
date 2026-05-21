@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="620" viewBox="0 0 520 620">
+  <rect fill="#fafafa" width="520" height="620"/>
+  <text x="40" y="50" font-family="Arial" font-size="22" font-weight="bold">PT DEMO SUPPLIER</text>
+  <text x="40" y="75" font-family="Arial" font-size="12">Invoice #INV-2026-0042</text>
+  <text x="40" y="100" font-family="Arial" font-size="12">Date: 2026-05-10</text>
+  <text x="40" y="125" font-family="Arial" font-size="12">Bill To: PT Superbrands Demo</text>
+  <rect x="40" y="150" width="440" height="28" fill="#e5e7eb"/>
+  <text x="50" y="169" font-family="Arial" font-size="11" font-weight="bold">Description</text>
+  <text x="300" y="169" font-family="Arial" font-size="11" font-weight="bold">Qty</text>
+  <text x="350" y="169" font-family="Arial" font-size="11" font-weight="bold">Unit</text>
+  <text x="430" y="169" font-family="Arial" font-size="11" font-weight="bold">Amount</text>
+  <text x="50" y="200" font-family="Arial" font-size="11">Widget Pro License</text>
+  <text x="310" y="200" font-family="Arial" font-size="11">1</text>
+  <text x="365" y="200" font-family="Arial" font-size="11">450.00</text>
+  <text x="455" y="200" font-family="Arial" font-size="11">450.00</text>
+  <text x="50" y="225" font-family="Arial" font-size="11">Support Package (Annual)</text>
+  <text x="310" y="225" font-family="Arial" font-size="11">1</text>
+  <text x="365" y="225" font-family="Arial" font-size="11">120.00</text>
+  <text x="455" y="225" font-family="Arial" font-size="11">120.00</text>
+  <line x1="40" y1="260" x2="480" y2="260" stroke="#333"/>
+  <text x="400" y="290" font-family="Arial" font-size="14" font-weight="bold">Total: SGD 570.00</text>
+</svg>

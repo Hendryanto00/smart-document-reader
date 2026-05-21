@@ -1,0 +1,28 @@
+Subject: Re: Technical Test — Smart Document Reader — [Nama Anda]
+
+Yth. Bapak Purwanto / Tim PT Superbrands International,
+
+Berikut submission Technical Test Tahap 2 — Smart Document Reader:
+
+Live URL:
+https://[ISI-SETELAH-DEPLOY].pages.dev
+
+Repository:
+https://github.com/[USERNAME]/smart-document-reader
+(atau lampiran ZIP)
+
+Akun demo:
+Email: demo@superbrands.test
+Password: DemoPass123!
+
+Sample dokumen uji: tersedia di folder /samples (PNG, JPG, PDF — data fiktif).
+
+Ringkasan singkat:
+- Stack: SvelteKit on Cloudflare Pages, D1, R2, OpenRouter (Gemini 2.0 Flash vision).
+- Alur: upload → AI extract + confidence → human review → save → filter/export CSV.
+
+Detail teknis, asumsi, AI workflow log, dan batasan: lihat README.md di repository.
+
+Hormat saya,
+[Nama Anda]
+[No. HP]

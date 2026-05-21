@@ -1,0 +1,15 @@
+name = "smart-document-reader"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "smart-doc-db"
+database_id = "aeb41ceb-7664-4089-ac5f-432f0d119b08"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "smart-doc-files"
+
+[vars]
+DEMO_EMAIL = "demo@superbrands.test"
