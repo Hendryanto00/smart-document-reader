@@ -8,14 +8,14 @@ Aplikasi live yang mengunggah dokumen keuangan (struk/faktur), mengekstrak data 
 
 | Lapisan | Pilihan | Alasan |
 |-------|--------|-----|
-| **Frontend** | **SvelteKit** + SSR | Cepat diselesaikan dalam 3 hari; **Cloudflare adapter** first-class; bundle kecil; form actions untuk review/save tanpa boilerplate API tambahan. |
-| **Runtime** | **Cloudflare Pages** (Worker) | Stack yang diminta; edge global, cocok dengan binding D1/R2. |
-| **Database** | **D1 (SQLite)** | SQL persisten yang diminta; skema sederhana untuk dokumen + field ekstraksi. |
-| **Penyimpanan file** | **R2** | Pasangan native dengan Workers; object storage murah untuk file asli. |
-| **OCR/AI** | **OpenRouter** → `google/gemini-2.0-flash-001` (vision) | Satu panggilan API: gambar → JSON terstruktur dengan **confidence** per field dan **warnings**. Tradeoff akurasi/biaya/latensi bagus dibanding pipeline OCR + LLM terpisah. |
-| **PDF** | **pdf.js** (client) | Workers tidak punya rasterisasi PDF yang mudah; halaman pertama di-render ke PNG di browser sebelum panggilan vision. |
+| **Frontend** | **SvelteKit** + SSR | Satu framework untuk tampilan web dan logika server, jadi upload → review → simpan bisa dikerjakan tanpa bikin backend/API terpisah. Cocok untuk deadline tes dan deploy langsung ke Cloudflare. |
+| **Runtime** | **Cloudflare Pages** (Worker) | Sesuai stack yang diminta di brief. Aplikasi, database, dan penyimpanan file berada di ekosistem yang sama sehingga setup deploy lebih sederhana. |
+| **Database** | **D1 (SQLite)** | Menyimpan data dokumen (vendor, tanggal, total, line items, status) secara permanen — data tidak hilang setelah refresh atau deploy ulang. |
+| **Penyimpanan file** | **R2** | Menyimpan file asli yang di-upload (foto/PDF). Mirip “cloud storage” yang terhubung langsung ke aplikasi, biayanya ringan untuk skala tes. |
+| **OCR/AI** | **OpenRouter** → `google/gemini-2.0-flash-001` (vision) | Model “melihat” gambar struk lalu mengisi data terstruktur sekaligus memberi **tingkat keyakinan** dan **peringatan** jika gambarnya buram atau bukan struk. Lebih praktis daripada OCR klasik lalu parsing teks manual. |
+| **PDF** | **pdf.js** (client) | Lingkungan Cloudflare tidak mudah mengubah PDF jadi gambar di server. PDF diubah ke gambar di browser pengguna dulu (halaman 1), baru dikirim ke AI — sama seperti user memfoto struk. |
 
-Backend **tidak terpisah**: route server SvelteKit + API `+server.ts` berjalan di Worker yang sama dengan UI (fullstack SSR). Lebih sedikit komponen untuk take-home 72 jam.
+Backend **tidak terpisah**: halaman web dan API (upload, simpan, ekspor) jalan di satu aplikasi yang sama, sehingga lebih sedikit yang perlu di-deploy dan di-debug.
 
 ## Pendekatan OCR/AI
 
