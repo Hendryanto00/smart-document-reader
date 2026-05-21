@@ -2,13 +2,6 @@
 
 Tes teknis — AI Native Fullstack (PT Superbrands). Unggah struk/faktur → ekstraksi vision AI → review manusia → simpan **D1** + file **R2** → ekspor **CSV**.
 
-## Live & login
-
-| | |
-|---|---|
-| **URL** | `https://smart-document-reader-4gl.pages.dev` *(ganti jika deploy baru)* |
-| **Login** | `demo@superbrands.test` / `DemoPass123!` |
-
 ## Stack & pendekatan OCR/AI
 
 | Lapisan | Pilihan | Alasan singkat |
