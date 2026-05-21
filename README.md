@@ -71,7 +71,6 @@ Lihat [`samples/`](samples/) — resi/invoice sintetis dalam **PNG, JPG, dan PDF
 
 ## Jika punya waktu 2× lipat
 
-- Antrian background (Workflows) untuk unggah batch + UI progress
 - Dukungan PDF multi-halaman
 - Ekspor JSON + Excel, audit log edit
 - Sistem login untuk tiap pengguna/perusahaan + pembatasan jumlah penggunaan agar tidak spam
