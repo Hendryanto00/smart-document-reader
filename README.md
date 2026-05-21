@@ -1,46 +1,42 @@
 # Smart Document Reader
 
-Pengumpulan tes teknis — **AI Native Fullstack Developer** (PT Superbrands International).
+Tes teknis — AI Native Fullstack (PT Superbrands). Unggah struk/faktur → ekstraksi vision AI → review manusia → simpan **D1** + file **R2** → ekspor **CSV**.
 
-Aplikasi live yang mengunggah dokumen keuangan (struk/faktur), mengekstrak data terstruktur lewat vision AI, membiarkan manusia meninjau field dengan confidence rendah, menyimpan ke **Cloudflare D1**, menyimpan file di **R2**, dan mengekspor record tersimpan ke **CSV**.
+## Live & login
 
-## URL Live
+| | |
+|---|---|
+| **URL** | `https://smart-document-reader-4gl.pages.dev` *(ganti jika deploy baru)* |
+| **Login** | `demo@superbrands.test` / `DemoPass123!` |
 
-> Deploy mengikuti [Deploy ke Cloudflare](#deploy-ke-cloudflare) di bawah, lalu tempel URL Anda di sini sebelum submit.
+## Stack & pendekatan OCR/AI
 
-`https://<your-project>.pages.dev`
+| Lapisan | Pilihan | Alasan singkat |
+|---------|---------|----------------|
+| UI + API | **SvelteKit** (SSR) di **Cloudflare Pages** | Satu codebase fullstack; adapter Cloudflare + binding D1/R2 native. |
+| DB / file | **D1** + **R2** | Persisten sesuai brief; tanpa server terpisah. |
+| Ekstraksi | **OpenRouter** → `google/gemini-2.0-flash-001` (vision) | Satu call gambar→JSON + **confidence** + **warnings**; lebih cepat dirakit daripada OCR klasik + LLM terpisah. |
+| PDF | **pdf.js** (browser) | Halaman 1 → PNG di client; Workers tidak punya raster PDF mudah. |
 
-## Login demo
+**Alur:** upload → (PDF→PNG) → vision API → `status=review` → user koreksi field amber → save → CSV (`saved` saja).
 
-| Field | Nilai |
-|-------|--------|
-| Email | `demo@superbrands.test` |
-| Password | `DemoPass123!` |
+## Asumsi
 
-(Diatur lewat Wrangler secrets / vars — lihat bagian deploy.)
+- Satu akun demo (bukan multi-tenant).
+- PDF: **halaman pertama** saja.
+- Upload max **8MB**; JPG, PNG, PDF; multi-file = antrian review (`sessionStorage` hanya ID, data di D1).
+- API key **OpenRouter milik kandidat**.
 
-## Stack & pilihan arsitektur
+## Log workflow AI *(wajib interview)*
 
-| Lapisan | Pilihan | Alasan |
-|-------|--------|-----|
-| **Frontend** | **SvelteKit** + SSR | Cepat diselesaikan dalam 1 hari; **Cloudflare adapter** first-class; bundle kecil; form actions untuk review/save tanpa boilerplate API tambahan. |
-| **Runtime** | **Cloudflare Pages** (Worker) | Stack yang diminta; edge global, cocok dengan binding D1/R2. |
-| **Database** | **D1 (SQLite)** | SQL persisten yang diminta; skema sederhana untuk dokumen + field ekstraksi. |
-| **Penyimpanan file** | **R2** | Pasangan native dengan Workers; object storage murah untuk file asli. |
-| **OCR/AI** | **OpenRouter** → `google/gemini-2.0-flash-001` (vision) | Satu panggilan API: gambar → JSON terstruktur dengan **confidence** per field dan **warnings**. Tradeoff akurasi/biaya/latensi bagus dibanding pipeline OCR + LLM terpisah. |
-| **PDF** | **pdf.js** (client) | Workers tidak punya rasterisasi PDF yang mudah; halaman pertama di-render ke PNG di browser sebelum panggilan vision. |
+| Bagian | Tool | Peran |
+|--------|------|--------|
+| Scaffold, D1/R2, wrangler, auth | **Cursor Agent** | Struktur project & deploy path |
+| `extract.ts`, upload API, confidence | **Cursor Agent** | Integrasi OpenRouter + skema JSON |
+| UI upload/review/list/CSV/landing | **Cursor Agent** | Svelte 5 + UX review |
+| Deploy, sample, uji manual | **Manusia (saya)** | Cloudflare, secrets, foto nyata |
 
-Backend **tidak terpisah**: route server SvelteKit + API `+server.ts` berjalan di Worker yang sama dengan UI (fullstack SSR). Lebih sedikit komponen untuk take-home 72 jam.
-
-## Pendekatan OCR/AI
-
-1. Pengguna mengunggah JPG/PNG/PDF (multi-select diproses berurutan dengan review di antara run).
-2. PDF → canvas PNG (halaman 1) di browser.
-3. Gambar dikirim ke model vision OpenRouter dengan prompt **skema JSON ketat** (vendor, date, total, currency, line_items, confidence 0–1, warnings, `is_financial_document`).
-4. Hasil disimpan di D1 dengan `status=review`; pengguna mengedit form; field confidence rendah disorot (< 65%).
-5. Saat save → `status=saved`; ekspor CSV menyertakan baris line-item.
-
-### Contoh prompt (paling berdampak)
+**Prompt paling menentukan** (system message ke vision model):
 
 ```
 You extract structured data from receipt/invoice photos.
@@ -51,83 +47,33 @@ Rules:
 - If not a financial document, set is_financial_document false and explain in warnings.
 ```
 
-## Log alur kerja AI (jujur)
+## Akurasi rendah
 
-| Langkah | Tool / agent | Tujuan |
-|------|----------------|---------|
-| Scaffold & kunci stack | **Cursor Agent (Claude)** | SvelteKit + Cloudflare adapter, skema D1, wrangler.toml |
-| Layanan ekstraksi | **Cursor Agent** | Integrasi vision OpenRouter, model confidence |
-| UI (upload, review, list, filter) | **Cursor Agent** | Halaman Svelte 5, dropzone, line item yang bisa diedit |
-| README & catatan deploy | **Cursor Agent** | File ini, checklist submission |
-| Manual | **Anda** | API key OpenRouter, akun Cloudflare, deploy, 2–3 foto sampel nyata |
+- Model mengisi **confidence per field**; UI highlight **&lt; 65%** (amber).
+- **warnings[]** di banner (blur, bukan struk, total hilang).
+- **Human-in-the-loop** — tidak final sampai **Simpan**.
+- Gagal API → `status=failed` + pesan; user bisa hapus / unggah ulang.
 
-## Menangani akurasi rendah
+## Jika waktu 2× lipat
 
-- Model mengembalikan **confidence per field**; UI menandai field di bawah **65%** dengan border amber + badge.
-- **warnings[]** ditampilkan di atas (blur, bukan struk, total hilang, dll.).
-- Human-in-the-loop: tidak ada yang final sampai pengguna klik **Save**.
-- Ekstraksi gagal → `status=failed` dengan error di warnings; pengguna tetap bisa hapus/unggah ulang.
+- Batch upload + progress (Queues/Workflows)
+- PDF multi-halaman + fallback OCR (Tesseract) bila vision gagal
+- Eval harness (golden receipts) + kalibrasi threshold confidence
+- Auth tenant, audit log edit, ekspor Excel/JSON, rate limit
 
-## Asumsi
-
-- Satu pengguna demo (tanpa auth multi-tenant) — cukup untuk ruang lingkup tes.
-- PDF: hanya **halaman pertama** yang dianalisis (umum untuk struk).
-- Ekspor: hanya dokumen **saved**; menghormati filter daftar.
-- Maks unggah **8MB**; **JPG, PNG, PDF** saja (multi-upload didukung).
-
-## Penyimpanan data (persisten)
-
-| Data | Tempat | Keterangan |
-|------|--------|------------|
-| Metadata dokumen, ekstraksi, line items | **Cloudflare D1** (SQL) | Tabel `documents`, persisten |
-| File asli (JPG/PNG/PDF) + preview PDF | **Cloudflare R2** | Object storage |
-| Antrian review multi-upload | `sessionStorage` browser | Hanya daftar ID dokumen untuk navigasi UX — **bukan** data bisnis |
-| Session login | Cookie httpOnly | Token session, bukan data dokumen |
-
-Semua data dokumen (vendor, tanggal, total, line items) **wajib ada di D1** setelah upload/simpan — bukan in-memory server dan bukan localStorage.
-- API key OpenRouter **disediakan kandidat** (perusahaan tidak menyediakan kredit).
-
-## Dokumen sampel
-
-Lihat [`samples/`](samples/) — resi/invoice sintetis dalam **PNG, JPG, dan PDF** (data fiktif aman). Regenerasi: `npm run samples:generate`.
-
-## Pengembangan lokal
+## Dev & deploy (ringkas)
 
 ```bash
-cd smart-document-reader
-npm install
-cp .env.example .dev.vars   # tambahkan OPENROUTER_API_KEY
-npm run db:migrate:local
-npx wrangler r2 bucket create smart-doc-files   # sekali
-npm run build
-npm run preview
+npm install && cp .env.example .dev.vars
+npm run db:migrate:local   # dev
+npm run preview            # lokal
+
+npm run db:migrate:remote  # production D1
+npm run deploy             # Pages
+npx wrangler pages secret put OPENROUTER_API_KEY --project-name=smart-document-reader
+# + SESSION_SECRET, DEMO_PASSWORD — lalu deploy lagi
 ```
 
-## Deploy ke Cloudflare
+Binding Pages: D1 **`DB`** → `smart-doc-db`, R2 **`BUCKET`** → `smart-doc-files`.
 
-1. Buat database **D1**: `wrangler d1 create smart-doc-db` → salin `database_id` ke `wrangler.toml`.
-2. Buat bucket **R2**: `wrangler r2 bucket create smart-doc-files`.
-3. Migrasi DB remote: `npm run db:migrate:remote`.
-4. Set secrets:
-   ```bash
-   wrangler secret put OPENROUTER_API_KEY
-   wrangler secret put SESSION_SECRET
-   wrangler secret put DEMO_PASSWORD
-   ```
-5. Hubungkan repo ke **Cloudflare Pages** (build: `npm run build`, output: `.svelte-kit/cloudflare`).
-6. Bind **D1** (`DB`) dan **R2** (`BUCKET`) di Pages → Settings → Functions.
-
-Atau CLI: `npm run deploy` setelah mengonfigurasi `wrangler.toml`.
-
-## Jika punya waktu 2× lipat
-
-- Antrian background (Workflows) untuk unggah batch + UI progress
-- Dukungan PDF multi-halaman
-- Ekspor JSON + Excel, audit log edit manusia
-- Auth per-tenant (Better Auth) + rate limiting
-- Harness evaluasi dengan struk golden + kalibrasi confidence
-- Fallback OCR (Tesseract) saat API vision gagal
-
-## Lisensi
-
-Dibuat untuk rekrutmen saja — tidak untuk penggunaan komersial tanpa izin penulis.
+Sample: [`samples/`](samples/) · regenerasi: `npm run samples:generate`
