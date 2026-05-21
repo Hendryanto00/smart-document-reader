@@ -48,7 +48,7 @@ Aturan:
 | Layanan ekstraksi | **Cursor Agent** | Integrasi vision OpenRouter, model confidence |
 | UI (upload, review, list, filter) | **Cursor Agent** | Halaman Svelte 5, dropzone, line item yang bisa diedit |
 | README & catatan deploy | **Cursor Agent** | Ringkasan Sistem, checklist submission |
-| Manual | **Saya** | API key OpenRouter, akun Cloudflare, deploy, 2–3 foto sampel nyata & fiktif |
+| Deploy | **Saya** | API key OpenRouter, akun Cloudflare, deploy, 2–3 foto sampel nyata & fiktif |
 
 ## Menangani akurasi rendah
 
