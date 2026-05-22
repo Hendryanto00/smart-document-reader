@@ -56,8 +56,8 @@
       {/if}
 
       <div class="swal-actions">
-        <button type="button" class="swal-btn swal-btn-confirm" onclick={onConfirm}>{confirmLabel}</button>
         <button type="button" class="swal-btn swal-btn-cancel" onclick={onCancel}>{cancelLabel}</button>
+        <button type="button" class="swal-btn swal-btn-confirm" onclick={onConfirm}>{confirmLabel}</button>
       </div>
     </div>
   </div>

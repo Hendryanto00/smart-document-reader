@@ -1241,8 +1241,10 @@ code {
 
 .swal-actions {
   display: flex;
+  flex-direction: row;
   justify-content: center;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
   margin-top: 0.25rem;
 }
